@@ -1,0 +1,38 @@
+# Everything the submission review would tell you, before a tag exists.
+#
+# The release workflow already runs the build, but by then a tag is public and
+# a failure is a failure in the open. This is the same gates on every push.
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      # `npm ci` and not `npm install`: it is the one command that fails when
+      # the lockfile has drifted from package.json, and nothing local runs it.
+      - run: npm ci
+
+      # tsc, the review's own eslint ruleset, and translation coverage.
+      - run: npm run build
+
+      - run: npm run check:docs
+
+      # A warning, not a gate. Raising the floor excludes users, which is a
+      # judgement call — but it should never be a surprise at submission time.
+      - name: minAppVersion
+        continue-on-error: true
+        run: npm run check:minapp

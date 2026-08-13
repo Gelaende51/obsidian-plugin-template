@@ -1,0 +1,27 @@
+{
+	"hooks": {
+		"PreToolUse": [
+			{
+				"matcher": "Bash",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "if grep -qE '(^|[^-])git +commit' <<< \"$CLAUDE_TOOL_INPUT\"; then bash \"$CLAUDE_PROJECT_DIR/scripts/preflight.sh\"; fi"
+					}
+				]
+			}
+		]
+	},
+	"permissions": {
+		"allow": [
+			"Bash(npm run build)",
+			"Bash(npm run lint)",
+			"Bash(npm run check:*)",
+			"Bash(node scripts/*)",
+			"Bash(node .dev/*)",
+			"Bash(git status*)",
+			"Bash(git diff*)",
+			"Bash(git log*)"
+		]
+	}
+}

@@ -1,0 +1,25 @@
+/* Styles are prefixed with the plugin id so nothing collides with a theme,
+   another plugin, or Obsidian itself.
+ 
+   Two habits worth keeping from the start:
+ 
+   - Comment *why*, and why not the obvious alternative. A rule whose reason
+     is gone is a rule nobody dares delete.
+   - When styling an element Obsidian owns, check its specificity first. A
+     view's contentEl already carries `.view-content`, which Obsidian styles
+     at (0,2,0); a bare `.my-plugin-view` is (0,1,0) and loses silently —
+     clashing declarations never apply while the rest do, so the result looks
+     half-styled and reads as a layout bug rather than a cascade one. */
+
+.my-plugin-status {
+	display: flex;
+	align-items: center;
+	gap: var(--size-2-2);
+}
+
+/* Obsidian sizes its own status bar icons through this variable; matching it
+   is what makes a plugin's icon look native rather than nearly native. */
+.my-plugin-status-icon > svg {
+	width: var(--icon-xs);
+	height: var(--icon-xs);
+}
