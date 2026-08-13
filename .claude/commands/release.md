@@ -10,8 +10,13 @@ Release version $ARGUMENTS.
    without saying what it was.
 3. On my go-ahead: `git push && git push origin $ARGUMENTS`.
 4. Watch the release workflow and confirm the provenance attestation verified.
-5. Then `npm run release:review` and follow it — the preview scan comes **before**
-   promoting the release, not after.
+5. `npm run release:review` — the preview scan against the tag. Read the result and
+   tell me what it says before going further.
+6. Only once that is clean: `npm run publish`, which promotes the release and makes the
+   listing public.
 
-Never run the community-site steps blind: they need a signed-in browser, and I do the
-sign-in.
+The community-site steps need Claude in Chrome connected and me already signed in —
+the site has no token path. **Do not type the password**, even if I have given it to
+you; ask me to sign in and take over from there.
+
+`publish` is the one step that cannot be quietly undone. Confirm with me before it.

@@ -34,7 +34,8 @@ leaves the template as it was.
 | **Live-app tests** | A DevTools-protocol harness that drives a real Obsidian, plus a self-test that proves the harness before you trust it |
 | **Localisation** | `t()`, a coverage gate, a locale scaffolder, and a reader for Obsidian's *own* UI strings |
 | **Docs integrity** | Link/anchor checking with GitHub's real slug rules, and structural parity between translations |
-| **Release** | Tag → CI builds → signed provenance → published, with a preview scan *before* anything is public |
+| **Release** | Three tiers by reversibility: tag locally, preview-scan the tag, then publish. Signed provenance throughout |
+| **Screenshots** | Live-app capture that refuses to shoot with test residue on screen, and never overwrites a good image with a rejected one |
 | **Safety** | A commit hook that refuses an open debug port, a staged credential file, or a secret in the diff |
 
 ## The parts worth reading before you delete them

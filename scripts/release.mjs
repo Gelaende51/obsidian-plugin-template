@@ -15,6 +15,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { notify } from "./notify.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const run = (cmd, args, opts = {}) =>
@@ -118,5 +119,12 @@ ok();
 console.log(`\nTagged ${version} locally. Nothing has been pushed.\n`);
 if (minappNote) console.log(`  note: ${minappNote.replace(/\n/g, "\n        ")}\n`);
 console.log("  git push && git push origin " + version);
-console.log("\nThen, before it is public:");
-console.log("  npm run release:review    preview scan, then promote it");
+console.log("\nThen, in order — each tier less reversible than the last:");
+console.log("  npm run release:review    preview scan against the tag (read-only)");
+console.log("  npm run publish           promote it, and make the listing public");
+console.log("\nBoth need a signed-in browser. See docs/development.md.");
+
+notify(
+	`${manifest.name} ${version} tagged`,
+	"Push it, then run release:review once CI is green.",
+);

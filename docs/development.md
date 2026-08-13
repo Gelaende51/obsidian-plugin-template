@@ -51,6 +51,7 @@ would see: what the DOM says, and what is on disk afterwards.
 
 ```bash
 node .dev/test-harness.mjs      # prove the harness itself
+node .dev/screenshots.mjs       # capture the images the README links
 ```
 
 Needs Obsidian running with `--remote-debugging-port=9222` (add it to
@@ -79,6 +80,21 @@ Three more rules that cost real time to learn:
 - **A readiness probe must not dereference what it is waiting for.** The page target
   answers while `app` is still undefined; guard from the root and treat a throwing probe
   as *not ready* rather than as a failure.
+
+### Screenshots
+
+`.dev/screenshots.mjs` drives the same live app and writes to `docs/images/`. Scenes are
+declared at the top of the file: which note to open, what to do before the shot, where to
+crop.
+
+It refuses to shoot while a test fixture is in the vault or another plugin is enabled —
+both are invisible in a passing test run and perfectly visible in a photograph. It also
+disables CSS transitions first, because a window driven over the DevTools protocol paints
+no frames, so anything faded in with a transition is captured mid-fade.
+
+A rejected shot never overwrites the committed one. That is not a nicety: writing the PNG
+and then checking it means a failed run replaces a good image with the bad one it just
+refused, the script exits non-zero, and `git add -A` ships it.
 
 ## Passing the plugin review
 
@@ -116,23 +132,52 @@ directly rather than reimplementing it, and tells you which call is buying the f
 
 ## Cutting a release
 
+Three commands, in order, each less reversible than the last:
+
 ```bash
 npm run release -- 1.1.0     # gates, bumps, commits, tags. Pushes nothing.
 git push && git push origin 1.1.0
-npm run release:review       # the browser steps, in the right order
+npm run release:review       # preview scan against the tag — read-only
+npm run publish              # promote the release, then make the listing public
 ```
 
-`release` stops at the tag deliberately: everything up to there is deterministic and
-works anywhere. The community-site steps need a signed-in browser — the site
-authenticates with email and password, so there is no token path — and a release command
-that silently does less on a machine without a session is worse than one that never
-tried.
+| Tier | What it touches | Undo |
+| --- | --- | --- |
+| `release` | Your working copy and a local tag | `git tag -d 1.1.0` |
+| `release:review` | Nothing — it reads a scan of your tag | Nothing to undo |
+| `publish` | The public listing | Not in the way the other two are |
 
-The order in `release:review` is the point: the **preview scan comes before the release
-is public**. The admin area's *Review branch* runs the submission review against any tag
-without publishing, which turns it from a verdict into a pre-flight check. *Check for new
-releases* is the separate control that promotes it — and it does not reliably happen by
-itself.
+`release` stops at the tag deliberately: everything up to there is deterministic and
+works anywhere. It also raises a desktop notification, because CI and the community
+scan both finish minutes after the command returns, and a release that quietly needs a
+browser step is a release that sits half-finished.
+
+The order is the point: the **preview scan happens before anything is public**. The
+admin area's *Review branch* runs the submission review against any tag without
+publishing, which turns it from a verdict into a pre-flight check. *Check for new
+releases* is a separate control that promotes it — and it does not reliably happen by
+itself. *Publish* is a third, and it is the one that cannot be quietly taken back.
+
+### The browser steps need a signed-in session
+
+`community.obsidian.md` authenticates with an email and password. There is no token, no
+API key and no OAuth app, so **none of these steps can run in CI** and none of them can
+be driven by a script holding a credential.
+
+What works is driving a browser you are already signed into. With [Claude in
+Chrome](https://claude.com/chrome) installed and connected (`/chrome` in a Claude Code
+session), an agent can navigate the admin area, run the preview scan, read the result
+back and press the controls — with one exception, which is deliberate:
+
+> **Sign in yourself.** An agent should not type a password into a form, even one you
+> handed it: a password entered outside a password manager is a credential used in a
+> context that cannot be fully verified. Sign in, then hand the session over. Everything
+> after that is automatable.
+
+Without the extension, `release:review` and `publish` print the steps and the URLs and
+you click them. That is the intended fallback — the scripts degrade to instructions
+rather than to a silent no-op, so a release behaves the same everywhere and the part
+that differs is visible.
 
 `versions.json` is append-only. It is how an app too old for the current release finds
 the newest one it can still run; deleting a line strands those users.
