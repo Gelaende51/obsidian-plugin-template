@@ -12,6 +12,20 @@ data.json
 # Local agent config — never published
 .claude/settings.local.json
 
+# Anything local to you rather than to the plugin: the test vault, accounts,
+# identifiers. Its own rule, so editing any other line here cannot expose it.
+#
+# The contents are excluded; the two files that describe the convention are not,
+# or a plugin made from this template would inherit an empty directory and no
+# idea what belongs in it.
+.personal/*
+!.personal/README.md
+!.personal/personal.md.example
+
+# Belt and braces: whatever the rules above say, a filled-in personal.md is
+# never committed.
+.personal/personal.md
+
 # Belt and braces: personal.md holds credentials. Kept as its own rule so
 # that removing any directory rule above cannot expose it by accident.
 personal.md

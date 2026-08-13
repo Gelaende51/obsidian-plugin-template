@@ -1,0 +1,27 @@
+# Personal
+
+Accounts and identifiers used when a plugin is created. `npm run init` reads this file
+if it exists and pre-fills its questions from it, so a new plugin does not start with
+someone else's account name baked into its manifest.
+
+Copy this to `personal.md` beside it and fill it in. **`.personal/` is excluded from
+git** — nothing in this directory is ever committed or uploaded.
+
+## Public identifiers
+
+These end up in a published plugin. They are public by nature; they live here only so
+they are in one place rather than scattered through the template.
+
+- pseudonym: <the name that appears as `author` in manifest.json>
+- github: <the account plugins are published under>
+- funding: <donation URL, or leave blank for none>
+- funding-label: <what the link is called, e.g. "Ko-fi">
+
+## Not public
+
+Anything secret goes in a credential store, not here. This file is excluded from git,
+but "not committed" is not the same as "safe" — it is still plaintext on disk, still
+readable by anything you run, and still liable to be pasted somewhere by accident.
+
+An agent working in this repository may read the identifiers above. It must not be
+asked to type a password into a form, and this file must never contain one.

@@ -47,7 +47,9 @@ const OUT = `${root}docs/images`;
  */
 const SCENES = {
 	hero: {
-		vault: "Demo",
+		// Obsidian names a vault after its directory, and the test vault lives
+		// at .personal/vault — so this is "vault" unless you renamed it.
+		vault: "vault",
 		note: "Welcome.md",
 		before: `
 			// TODO: put the UI into the state worth photographing.

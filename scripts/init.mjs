@@ -33,8 +33,36 @@ const PLACEHOLDERS = {
 	name: "My Plugin",
 	className: "TemplatePlugin",
 	repo: "obsidian-my-plugin",
+	owner: "TODO-OWNER",
+	author: "TODO",
 	cssPrefix: "my-plugin",
 };
+
+/**
+ * Identifiers come from `.personal/personal.md` if it exists, never from the
+ * template itself.
+ *
+ * A template that ships someone's GitHub account is a template that quietly
+ * publishes plugins under it — the account name reaches manifest.json, the
+ * README, the release workflow and the funding link, and each of those is a
+ * place to forget. `.personal/` is excluded from git, so the answers stay on
+ * the machine that has them.
+ */
+function readPersonal() {
+	const path = join(root, ".personal", "personal.md");
+	if (!existsSync(path)) return {};
+	const text = readFileSync(path, "utf8");
+	const field = (name) => new RegExp(`^\\s*[-*]\\s*${name}\\s*:\\s*(.+)$`, "im").exec(text)?.[1]?.trim();
+	const value = (v) => (v && !/^<.*>$/.test(v) ? v : undefined);
+	return {
+		author: value(field("pseudonym")),
+		owner: value(field("github")),
+		funding: value(field("funding")),
+		fundingLabel: value(field("funding-label")),
+	};
+}
+
+const personal = readPersonal();
 
 const SUBSYSTEMS = {
 	i18n: {
@@ -64,8 +92,8 @@ console.log("\nTemplate setup. Enter to accept a default.\n");
 const id = await ask("Plugin id (kebab-case, matches the folder in .obsidian/plugins)", PLACEHOLDERS.id);
 const name = await ask("Display name", id.replace(/(^|-)(\w)/g, (_, s, c) => (s ? " " : "") + c.toUpperCase()));
 const description = await ask("Description (one sentence, ends in a full stop)", "");
-const author = await ask("Author", "Vault51");
-const owner = await ask("GitHub owner", "Gelaende51");
+const author = await ask("Author", personal.author);
+const owner = await ask("GitHub owner", personal.owner);
 const repo = await ask("Repository name", `obsidian-${id}`);
 const desktopOnly = await yes("Desktop only? (yes if it touches Node or Electron)");
 
@@ -83,8 +111,8 @@ const subs = [
 	[PLACEHOLDERS.className, className],
 	[PLACEHOLDERS.name, name],
 	[PLACEHOLDERS.id, id],
-	["Gelaende51", owner],
-	["Vault51", author],
+	[PLACEHOLDERS.owner, owner],
+	[PLACEHOLDERS.author, author],
 ];
 
 /** Every text file except the ones that are not ours to rewrite. */
@@ -108,7 +136,16 @@ for (const file of walk(root)) {
 
 // Description and desktop-only are structured fields, not text substitutions.
 for (const [file, patch] of [
-	["manifest.json", (j) => ({ ...j, description: description || j.description, isDesktopOnly: desktopOnly, version: "0.1.0" })],
+	["manifest.json", (j) => ({
+		...j,
+		description: description || j.description,
+		isDesktopOnly: desktopOnly,
+		version: "0.1.0",
+		authorUrl: `https://github.com/${owner}`,
+		// Omitted entirely rather than left as a placeholder: a funding link
+		// pointing at example.com is worse than no funding link.
+		...(personal.funding ? { fundingUrl: { [personal.fundingLabel ?? "Donate"]: personal.funding } } : { fundingUrl: undefined }),
+	})],
 	["package.json", (j) => ({ ...j, description: description || j.description })],
 ]) {
 	const path = join(root, file);
@@ -175,4 +212,9 @@ console.log(`\n${name} is ready.\n`);
 console.log("  npm run build          type check, lint, bundle");
 console.log("  npm run check:minapp   what your API usage actually requires");
 if (keep.harness) console.log("  node .dev/test-harness.mjs   prove the harness before writing tests");
-console.log("\nSymlink main.js, manifest.json and styles.css into <vault>/.obsidian/plugins/" + id + "/");
+console.log("\nPut a test vault at .personal/vault, then symlink main.js, manifest.json");
+console.log("and styles.css into .personal/vault/.obsidian/plugins/" + id + "/");
+if (!existsSync(join(root, ".personal", "personal.md"))) {
+	console.log("\nNo .personal/personal.md — see .personal/README.md. It pre-fills these");
+	console.log("questions next time, and keeps your accounts out of the repository.");
+}

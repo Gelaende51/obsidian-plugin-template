@@ -4,10 +4,10 @@
 	"version": "0.1.0",
 	"minAppVersion": "1.4.0",
 	"description": "One sentence, no marketing register, ending in a full stop.",
-	"author": "Vault51",
-	"authorUrl": "https://github.com/Gelaende51",
+	"author": "TODO",
+	"authorUrl": "https://github.com/TODO",
 	"fundingUrl": {
-		"Ko-fi": "https://ko-fi.com/vault51"
+		"TODO": "https://example.com/TODO"
 	},
 	"isDesktopOnly": false
 }
