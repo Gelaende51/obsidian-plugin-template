@@ -13,16 +13,16 @@ npm run check:minapp   # what your API usage actually requires
 npm run check:docs     # documentation links and translation structure
 ```
 
-The test vault lives at **`.personal/vault`** — inside the repository so the tooling can
-find it by a fixed relative path, and excluded from git so nothing about your machine
-reaches a commit. `.personal/` also holds `personal.md`, which `npm run init` reads for
-account names so none of them are baked into the template. See
+The test vault lives in **`.personal/`** — inside the repository so it sits next to the
+plugin it is for, and excluded from git so nothing about your machine reaches a commit.
+`.personal/` also holds `personal.md`, which `npm run init` reads for account names so
+none of them are baked into the template. See
 [`.personal/README.md`](../.personal/README.md).
 
-Obsidian names a vault after its directory, so it appears as **vault**; that is what
-`OBSIDIAN_VAULT` and the screenshot scenes use. If you keep several plugins' vaults open
-at once, rename one — the harness selects its window by vault name and refuses when the
-name is ambiguous.
+Give the vault a distinctive directory name and keep it. Obsidian names a vault after
+its directory, and the harness picks its window by that name — so calling every plugin's
+test vault `vault` means it cannot tell two open windows apart, and refuses rather than
+guessing. Put the name in `OBSIDIAN_VAULT` and in the screenshot scenes.
 
 To test in a real vault, symlink or copy `main.js`, `manifest.json` and `styles.css`
 into `<vault>/.obsidian/plugins/<id>/`. Symlinks plus `npm run dev` give a live-reload

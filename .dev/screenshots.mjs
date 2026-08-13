@@ -47,9 +47,10 @@ const OUT = `${root}docs/images`;
  */
 const SCENES = {
 	hero: {
-		// Obsidian names a vault after its directory, and the test vault lives
-		// at .personal/vault — so this is "vault" unless you renamed it.
-		vault: "vault",
+		// The name of the vault in .personal/, which is what the harness matches
+		// the window title against. Keep it distinctive: two windows both called
+		// "vault" are two windows the harness will refuse to choose between.
+		vault: "Demo",
 		note: "Welcome.md",
 		before: `
 			// TODO: put the UI into the state worth photographing.

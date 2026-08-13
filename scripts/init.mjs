@@ -212,8 +212,9 @@ console.log(`\n${name} is ready.\n`);
 console.log("  npm run build          type check, lint, bundle");
 console.log("  npm run check:minapp   what your API usage actually requires");
 if (keep.harness) console.log("  node .dev/test-harness.mjs   prove the harness before writing tests");
-console.log("\nPut a test vault at .personal/vault, then symlink main.js, manifest.json");
-console.log("and styles.css into .personal/vault/.obsidian/plugins/" + id + "/");
+console.log("\nPut a test vault in .personal/ — keep a distinctive name, the harness picks");
+console.log("its window by it — and symlink main.js, manifest.json and styles.css into");
+console.log("its .obsidian/plugins/" + id + "/ folder.");
 if (!existsSync(join(root, ".personal", "personal.md"))) {
 	console.log("\nNo .personal/personal.md — see .personal/README.md. It pre-fills these");
 	console.log("questions next time, and keeps your accounts out of the repository.");
