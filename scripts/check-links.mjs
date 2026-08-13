@@ -41,7 +41,10 @@ function anchors(path) {
 const files = [];
 (function walk(dir) {
 	for (const entry of readdirSync(dir, { withFileTypes: true })) {
-		if (entry.name === "node_modules" || entry.name === ".git") continue;
+		// .personal holds the test vault, whose notes are the user's own writing
+		// with their own links — not documentation this repository is asserting
+		// anything about.
+		if (["node_modules", ".git", ".personal"].includes(entry.name)) continue;
 		const path = `${dir}/${entry.name}`;
 		if (entry.isDirectory()) walk(path);
 		else if (entry.name.endsWith(".md")) files.push(path);
