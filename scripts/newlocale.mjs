@@ -16,7 +16,32 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { dirname, relative, resolve } from "node:path";
 import { LANGUAGES } from "./i18n-selector.mjs";
+
+/**
+ * Re-points relative links for a body that is moving to another directory.
+ *
+ * A translation of README.md lives in docs/i18n/, so a link the English wrote
+ * as `docs/development.md` has to become `../development.md`. Copying the body
+ * verbatim produces a file whose every internal link is broken — and since the
+ * text is in a language the author may not read, nobody notices until a link
+ * checker does.
+ *
+ * Anything with a scheme, and any bare #anchor, is left alone.
+ */
+function repointLinks(body, fromFile, toFile) {
+	const fromDir = dirname(fromFile);
+	const toDir = dirname(toFile);
+	return body.replace(/(\]\()([^)\s]+)(\))/g, (whole, open, href, close) => {
+		if (/^[a-z][a-z0-9+.-]*:/i.test(href) || href.startsWith("#")) return whole;
+		const [path, hash] = href.split("#");
+		if (!path) return whole;
+		const absolute = resolve(fromDir, path);
+		const rebased = relative(toDir, absolute) || ".";
+		return `${open}${rebased}${hash ? `#${hash}` : ""}${close}`;
+	});
+}
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const code = process.argv[2];
@@ -81,7 +106,11 @@ for (const source of [`${root}README.md`, `${root}docs/usage.md`]) {
 for (const [doc, source] of [["README", `${root}README.md`], ["usage", `${root}docs/usage.md`]]) {
 	const target = `${root}docs/i18n/${doc}.${code}.md`;
 	if (existsSync(target) || !existsSync(source)) continue;
-	const body = readFileSync(source, "utf8").replace(/^\*\*[^\n]*\n\n/, "");
+	const body = repointLinks(
+		readFileSync(source, "utf8").replace(/^(?:\{\{SELECTOR\}\}|\*\*[^\n]*)\n\n/, ""),
+		source,
+		target,
+	);
 	writeFileSync(
 		target,
 		`<!-- Translation of ${doc === "README" ? "README.md" : "docs/usage.md"} — status: commit ${head}.\n` +
