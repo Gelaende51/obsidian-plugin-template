@@ -11,12 +11,16 @@ Obsidian 1.4.0+ · AGPL-3.0
 <!-- Placement is deliberate: above the other headings, below the description.
      If a number appears here, something must be able to recompute it — see
      .dev/usage-stats.mjs. A fork cannot honestly restate these figures and
-     should replace this whole section with its own. -->
+     should replace this whole section with its own.
+
+     Upstream names what the model was made from. Keep it to one factual line:
+     it is a disclosure, not an appeal, and it reads as boilerplate the moment
+     it argues. -->
 
 - **Agent** — TODO (model, provider): what it wrote.
 - **Author** — TODO: what you specified, tested and reviewed.
 - **Usage** — TODO. Run `node .dev/usage-stats.mjs` to compute it.
-- **Upstream** — a model that writes code learned to from open source, documentation, forum answers and bug reports that people wrote and gave away. None of them were asked, credited or paid. State it plainly: it is the largest uncredited contribution to anything built this way, and it is worth more support than this project is.
+- **Upstream** — the model learned from open source code, documentation and community writing published by others.
 
 ## Features
 
