@@ -183,6 +183,27 @@ if (existsSync(pluginReadme)) {
 	rmSync(pluginReadme, { force: true });
 }
 
+// The template's listing.json documents every field the community site's edit
+// form has. A plugin wants the two lines it will actually fill in — the rest
+// is reference, and reference belongs in docs/listing.md where it can be read
+// without being mistaken for configuration.
+{
+	const path = join(root, "listing.json");
+	if (existsSync(path)) {
+		writeFileSync(
+			path,
+			JSON.stringify(
+				{
+					_: "What community.obsidian.md shows about this plugin that manifest.json has no field for. Not shipped, never read by Obsidian. `npm run check:listing` validates it; docs/listing.md describes every field the form offers.",
+					tags: [],
+				},
+				null,
+				"\t",
+			) + "\n",
+		);
+	}
+}
+
 rmSync(join(root, "scripts/init.mjs"), { force: true });
 {
 	const path = join(root, "package.json");

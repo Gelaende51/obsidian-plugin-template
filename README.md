@@ -56,6 +56,11 @@ floor four minor versions too high, which is worse than having no tool.
 with a credential file staged. Both are things that were previously handled by
 remembering.
 
+**`listing.json`** — the community site shows tags, a long description, a pricing model
+and an icon that `manifest.json` has no field for, and they otherwise live only in a web
+form. This keeps them in the source tree, refuses values the form would reject, and
+diffs itself against the live listing. See [the listing](docs/listing.md).
+
 **`docs/development.md`** — why the review disagrees with your local lint, and what to do
 about it.
 
@@ -73,8 +78,8 @@ about it.
 
 ```
 src/            main, settings, settings tab, entry points, lang, internal types
-docs/           usage, development, compatibility; i18n/ for translations
-scripts/        checks, i18n tooling, release, preflight, init
+docs/           usage, development, compatibility, listing; i18n/ for translations
+scripts/        checks, i18n tooling, release, publish, preflight, init
 .dev/           live-app harness, screenshots, disclosure figures, takeaways
 .github/        CI on every push; release on a version tag
 .claude/        commit hook, and slash commands for the recurring workflows

@@ -193,6 +193,14 @@ that differs is visible.
 `versions.json` is append-only. It is how an app too old for the current release finds
 the newest one it can still run; deleting a line strands those users.
 
+### The listing
+
+The community site keeps a handful of fields the manifest has nowhere to put — tags, a
+long description, a pricing model, a listing icon, screenshots. `listing.json` holds
+them in the source tree, `npm run check:listing` validates them, and `publish` prints
+what to type and then reads the public listing back. Why they cannot live in
+`manifest.json`, and what every field means, is in [the listing](listing.md).
+
 ## Localisation
 
 `src/lang/strings.ts` is the English source of truth; `translations.ts` holds partial

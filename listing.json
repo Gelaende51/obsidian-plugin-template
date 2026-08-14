@@ -1,0 +1,25 @@
+{
+	"_": "What the community site shows about this plugin that manifest.json has no field for. Nothing here is shipped to users and Obsidian never reads it — see docs/development.md#the-listing. This is the template's copy and deliberately lists every field, so `check:listing` reports each one as removable — `npm run init` trims it to the two lines a plugin actually fills in. Keys starting with _ are notes and are ignored; JSON has no comments and only these scripts read this file, so they live here rather than in a document nobody opens.",
+
+	"_tags": "Up to 3, in the order they should appear on the listing — the form lets you drag them, so the order is a choice. `node scripts/obsidian-listing-tags.mjs` prints the 76 the site accepts; anything else makes the form refuse to save.",
+	"tags": [],
+
+	"_pricing": "free | paid | optional-payment. Defaults to free, which is also what a plugin with no payment of any kind is; delete this line unless it is something else.",
+	"pricing": "free",
+
+	"_payment_description": "Only shown when pricing is not free. One line on what is paid for and what is not — the listing has no room to explain a licence.",
+	"payment_description": "",
+
+	"_long_desc": "Up to 1000 characters. Optional: the listing already renders the repository's README below it, so this is worth writing only if the README's opening is a poor summary out of context.",
+	"long_desc": "",
+
+	"_short_desc": "NOT a field to fill in here. The site takes it from manifest.json's description, so a second copy would be a second thing to keep right. check-listing refuses it.",
+
+	"_icon": "The listing badge: a lucide icon name and a hex background. Left null the site picks one, which is why every unset listing has a house on red. Set both or neither.",
+	"lucide_icon_name": null,
+	"icon_color": null,
+
+	"_screenshots": "Uploaded through the form, not from here — the site stores images by id and there is no path that starts with a file. Two or three that show the plugin doing its job; the first is the card image in search results.",
+
+	"_private_source": "The form can also point the listing at a private mirror of the source via a GitHub App. That is an authorisation, not a value, so it is not represented here."
+}
