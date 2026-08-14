@@ -15,12 +15,12 @@ Obsidian 1.4.0+ · AGPL-3.0
 
      Upstream names what the model was made from. Keep it to one factual line:
      it is a disclosure, not an appeal, and it reads as boilerplate the moment
-     it argues. -->
+     it argues. Author goes last, after it — the order is the claim. -->
 
 - **Agent** — TODO (model, provider): what it wrote.
-- **Author** — TODO: what you specified, tested and reviewed.
 - **Usage** — TODO. Run `node .dev/usage-stats.mjs` to compute it.
-- **Upstream** — the model learned from open source code, documentation and community writing published by others.
+- **Upstream** — the model learned from open source code, documentation and community writing published by others. Most of the credit goes there.
+- **Author** — TODO: what you specified, tested and reviewed.
 
 ## Features
 
