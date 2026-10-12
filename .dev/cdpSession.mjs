@@ -1,11 +1,16 @@
 /**
- * A single long-lived CDP connection, so a test run isn't one WebSocket
- * handshake per assertion. Same protocol as .dev/cdp.mjs, kept separate so
- * that stays a one-shot command-line tool.
+ * The CDP session the live-app tests and screenshots use: electron-template's
+ * (one long-lived connection, real key presses, PAUSE/SLOW, a stuck-page
+ * diagnosis) with Obsidian's window choice and refusals. Same protocol as
+ * .dev/cdp.mjs, kept separate so that stays a one-shot command-line tool.
+ *
+ * OBSIDIAN_VAULT picks the vault's window, OBSIDIAN_CDP_PORT (or CDP_PORT) the
+ * port Obsidian was started with (--remote-debugging-port), SLOW stretches
+ * every wait on a slow machine.
  */
+import { connect as connectApp, decodeTitle, describeKey, pressKey, PAUSE, parkPointer, isPainting, asPosix } from "electron-template/cdp-session";
 
-const PORT = process.env.OBSIDIAN_CDP_PORT ?? 9222;
-const ORIGIN = `http://127.0.0.1:${PORT}`;
+export { describeKey, pressKey, PAUSE, parkPointer, isPainting, asPosix };
 
 /**
  * Picks the Obsidian window to drive.
@@ -18,22 +23,6 @@ const ORIGIN = `http://127.0.0.1:${PORT}`;
  *
  * Set OBSIDIAN_VAULT to choose; with one window open it is optional.
  */
-/**
- * Obsidian HTML-escapes the window title, so a vault named
- * "L'Éclaire, c'est moi" arrives as "L&#39;Éclaire, c&#39;est moi" and a
- * literal comparison never matches. Decode before comparing, or a vault with
- * an apostrophe in its name is simply unreachable from these tools.
- */
-function decodeTitle(title) {
-	return title
-		.replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
-		.replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCharCode(parseInt(code, 16)))
-		.replace(/&quot;/g, '"')
-		.replace(/&lt;/g, "<")
-		.replace(/&gt;/g, ">")
-		.replace(/&amp;/g, "&");
-}
-
 function pickTarget(targets, vault) {
 	const pages = targets.filter((t) => t.type === "page" && !t.url.startsWith("devtools://"));
 	if (!pages.length) throw new Error("No page target — is a vault open?");
@@ -47,7 +36,30 @@ function pickTarget(targets, vault) {
 		}
 		return pages[0];
 	}
-	const match = pages.find((t) => decodeTitle(t.title).includes(` - ${vault} - `));
+	// A vault can have more than one window, and not all of them hold a
+	// vault: Obsidian's Settings opens as a page target of its own, titled
+	// "Settings - <vault> - Obsidian", with no `app` in it at all. Picking it
+	// fails every evaluate with "app is not defined", which reads like the
+	// plugin having broken. The window holding a file is preferred, and the
+	// known windowless ones are refused outright.
+	const candidates = pages.filter((t) => decodeTitle(t.title).includes(` - ${vault} - `));
+	// One window of that vault by name, for the parts of the app that open in
+	// a window of their own — Obsidian's settings, when they are set to. The
+	// suites never want it; a probe that has to click something in there does.
+	const named = process.env.OBSIDIAN_WINDOW;
+	if (named) {
+		const wanted = candidates.find((t) => decodeTitle(t.title).includes(named));
+		if (wanted) return wanted;
+		throw new Error(
+			`No window of "${vault}" whose title contains "${named}". Open windows:\n  ` +
+				candidates.map((t) => decodeTitle(t.title)).join("\n  "),
+		);
+	}
+	// Titled by the settings page it is showing ("Community plugins - …"), so
+	// the title alone does not give it away; the address does. A vault window
+	// is served from app://, a window of Obsidian's own UI is about:blank.
+	const isSettings = (t) => /^Settings - /.test(decodeTitle(t.title)) || t.url === "about:blank";
+	const match = candidates.find((t) => !isSettings(t)) ?? candidates[0];
 	if (!match) {
 		throw new Error(
 			`No window for vault "${vault}". Open windows:\n  ` +
@@ -58,63 +70,39 @@ function pickTarget(targets, vault) {
 }
 
 export async function connect() {
-	const targets = await (await fetch(`${ORIGIN}/json/list`)).json();
-	const page = pickTarget(targets, process.env.OBSIDIAN_VAULT);
-
-	const socket = new WebSocket(page.webSocketDebuggerUrl);
-	await new Promise((resolve, reject) => {
-		socket.addEventListener("open", resolve, { once: true });
-		socket.addEventListener("error", () => reject(new Error("WebSocket failed")), { once: true });
+	return connectApp({
+		pickTarget: (pages) => pickTarget(pages, process.env.OBSIDIAN_VAULT),
+		check: process.env.OBSIDIAN_WINDOW || process.env.ALLOW_SETTINGS ? undefined : obsidianSettingsInFront,
 	});
-
-	let nextId = 1;
-	const pending = new Map();
-	socket.addEventListener("message", (event) => {
-		const message = JSON.parse(event.data);
-		const settle = pending.get(message.id);
-		if (!settle) return;
-		pending.delete(message.id);
-		if (message.error) settle.reject(new Error(message.error.message));
-		else settle.resolve(message.result);
-	});
-
-	const send = (method, params = {}) =>
-		new Promise((resolve, reject) => {
-			const id = nextId++;
-			pending.set(id, { resolve, reject });
-			socket.send(JSON.stringify({ id, method, params }));
-		});
-
-	/**
-	 * Evaluates in the page and returns the value. Expressions are wrapped
-	 * in an async IIFE so a test step can await Obsidian's own promises —
-	 * opening a file, waiting for a debounce — inline.
-	 */
-	const evaluate = async (expression, timeoutMs = 15000) => {
-		// A step that never settles must fail its own test rather than wedge
-		// the run — and a render heavy enough to kill the renderer outright
-		// looks exactly like a step that never settles.
-		const result = await Promise.race([
-			send("Runtime.evaluate", {
-				expression: `(async () => { ${expression} })()`,
-				returnByValue: true,
-				awaitPromise: true,
-			}),
-			new Promise((_, reject) =>
-				setTimeout(() => reject(new Error(`page did not answer in ${timeoutMs}ms`)), timeoutMs),
-			),
-		]);
-		if (result.exceptionDetails) {
-			throw new Error(result.exceptionDetails.exception?.description ?? "threw in page");
-		}
-		return result.result.value;
-	};
-
-	return { send, evaluate, close: () => socket.close() };
 }
 
-/** Page-side sleep, for the debounced saves and Obsidian's own async repaints. */
-export const PAUSE = (ms) => `await new Promise((r) => setTimeout(r, ${ms}));`;
+// Obsidian's settings, open in a window of their own, sit in front of the
+// vault and take the focus with them — and a suite then measures a window
+// that cannot answer a click. Three suites failed sixteen assertions that
+// way in one run, every one of them a dropdown that "would not open".
+// Refused rather than worked around: it is the same class as a window that
+// is not compositing, and the answer is the same — say so, and let the
+// person close it.
+//
+// A probe that means to drive the settings says so with OBSIDIAN_WINDOW,
+// or with ALLOW_SETTINGS for the ones that open them from the vault side.
+async function obsidianSettingsInFront(evaluate) {
+	const settingsOpen = await evaluate(
+		`const s = window.app?.setting;
+		 // Two ways for them to be up: in this window, where the container
+		 // is in this document, or in one of their own, where it is not —
+		 // the instance here keeps a stale container either way, so the
+		 // window itself is the honest question.
+		 const own = s?.win;
+		 return !!(s?.containerEl?.isConnected) || !!(own && own !== window && !own.closed);`,
+	).catch(() => false);
+	if (!settingsOpen) return null;
+	return (
+		"Obsidian's settings are open, and in a window of their own they take the\n" +
+		"focus this window needs — clicks land nowhere and dropdowns never open.\n" +
+		"Close them and run again (ALLOW_SETTINGS=1 to drive them on purpose)."
+	);
+}
 
 /**
  * Re-reads main.js from disk before a run.
@@ -134,7 +122,24 @@ export async function reloadPlugin(page, id) {
 		await app.plugins.disablePlugin(${JSON.stringify(id)});
 		await new Promise((r) => setTimeout(r, 200));
 		await app.plugins.enablePlugin(${JSON.stringify(id)});
+		// Enabling does not wait for an async onload: wait until it has run,
+		// or a case that drives the plugin straight after finds it half-made
+		// (seen on emulated x64, where loading is slow).
+		for (let i = 0; i < 100; i++) {
+			if (app.plugins.plugins[${JSON.stringify(id)}]?._loaded) break;
+			await new Promise((r) => setTimeout(r, 100));
+		}
 		await new Promise((r) => setTimeout(r, 400));
+		return true;
+	`);
+}
+
+/** Writes plugin settings a case depends on, and saves them — a fixture that is not a file. */
+export async function setSettings(page, patch, id) {
+	await page.evaluate(`
+		const plugin = app.plugins.plugins[${JSON.stringify(id)}];
+		Object.assign(plugin.settings, ${JSON.stringify(patch)});
+		await plugin.saveSettings();
 		return true;
 	`);
 }
