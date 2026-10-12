@@ -1,0 +1,9 @@
+{
+	"$schema": "./node_modules/development-template/schema/devkit.config.schema.json",
+	"id": "my-plugin",
+	"name": "My Plugin",
+	"repository": "TODO-OWNER/obsidian-my-plugin",
+	"locales": ["en"],
+	"environments": {},
+	"obsidian": {}
+}

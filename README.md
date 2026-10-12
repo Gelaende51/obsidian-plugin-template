@@ -37,6 +37,9 @@ leaves the template as it was.
 | **Release** | Three tiers by reversibility: tag locally, preview-scan the tag, then publish. Signed provenance throughout |
 | **Screenshots** | Live-app capture that refuses to shoot with test residue on screen, and never overwrites a good image with a rejected one |
 | **Safety** | A commit hook that refuses an open debug port, a staged credential file, or a secret in the diff |
+| **Dependencies** | Dependabot (bundled dependencies with majors, build tools, actions in groups); a dependency update that changes `main.js` is built as a `-deps` pre-release for BRAT once CI passes |
+| **Toolkit** | Shared tooling as devDependencies: [development-template](https://github.com/Gelaende51/development-template) (test harness, error sentences, environment watch, failure issues per target) and [electron-template](https://github.com/Gelaende51/electron-template) (CDP session, suite runner, distro dependencies). Per-project facts in `devkit.config.json` |
+| **Guides** | `docs/obsidian-platforms.md` here; [portability and CI](https://github.com/Gelaende51/development-template/blob/main/docs/portability-and-ci.md) in development-template |
 
 ## The parts worth reading before you delete them
 
