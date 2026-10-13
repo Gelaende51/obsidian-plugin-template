@@ -4,7 +4,9 @@
 # asset, the GitHub release, and the directory's release scan, listing and
 # recorded review. Anyone can check the bundle came from this source:
 #
-#   gh attestation verify main.js --repo <owner>/<repo>
+#   gh attestation verify main.js --repo <owner>/<repo> --signer-repo Gelaende51/obsidian-toolkit
+#
+# (The signer is obsidian-toolkit: its reusable workflow builds and signs.)
 #
 # Two ways in: `npm run release -- 1.1.0` (or Actions → Release → Run workflow
 # with a version), or a tag pushed by hand, released as it is. Obsidian's

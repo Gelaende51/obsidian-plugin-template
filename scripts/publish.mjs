@@ -84,7 +84,7 @@ Listing metadata, if any of it has changed:
 ${describeListing()}
 Provenance, if you have not checked it already:
 
-     gh attestation verify main.js --repo ${repo}
+     gh attestation verify main.js --repo ${repo} --signer-repo Gelaende51/obsidian-toolkit
 `);
 
 // Read the public listing back and say whether it still agrees with the source
