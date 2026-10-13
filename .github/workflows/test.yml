@@ -1,8 +1,8 @@
-# The live-app suites (devkit.config.json's "suites", .dev/<suite>.mjs)
-# against a sandboxed Obsidian, on the oldest version the manifest allows and
-# the newest — obsidian-toolkit's reusable workflow. Linux on every push;
-# Windows and macOS when asked for (Actions → Test → Run workflow, or the
-# `runners` input from another workflow): their minutes count 2× and 10× on a
+# The test suites (devkit.config.json's "suites", .dev/<suite>.mjs) — those
+# that connect to Obsidian against a sandboxed one, on the oldest version the
+# manifest allows and the newest; the rest in plain Node. obsidian-toolkit's
+# reusable workflow. Linux on every push; Windows and macOS on request
+# (Actions → Test → Run workflow): their minutes count 2× and 10× on a
 # private repository's allowance.
 name: Test
 on:
@@ -11,22 +11,37 @@ on:
   pull_request:
   workflow_dispatch:
     inputs:
-      runners:
-        description: "JSON array of runners"
-        default: '["ubuntu-latest", "windows-latest", "macos-latest"]'
+      suites:
+        description: "Suites to run, space separated (empty: all)"
+        default: ""
+      filter:
+        description: "Only the cases whose name contains this"
+        default: ""
+      obsidian:
+        description: "Obsidian versions"
+        type: choice
+        options: [both, latest, earliest]
+        default: both
+      os:
+        description: "Systems"
+        type: choice
+        options: [linux, windows, windows-arm, windows-all, macos, macos-all, both, desktops, all]
+        default: desktops
   # The Release workflow runs the same suites first.
   workflow_call:
-    inputs:
-      runners:
-        type: string
-        default: '["ubuntu-latest"]'
+
+concurrency:
+  group: test-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: ${{ github.event_name == 'push' }}
 
 permissions:
   contents: read
 
 jobs:
   suites:
-    uses: Gelaende51/obsidian-toolkit/.github/workflows/suites.yml@v0.12.0
+    uses: Gelaende51/obsidian-toolkit/.github/workflows/suites.yml@v0.13.0
     with:
-      versions: '["earliest", "latest"]'
-      runners: ${{ inputs.runners || '["ubuntu-latest"]' }}
+      suites: ${{ inputs.suites }}
+      filter: ${{ inputs.filter }}
+      versions: ${{ inputs.obsidian || 'both' }}
+      os: ${{ inputs.os || 'linux' }}
