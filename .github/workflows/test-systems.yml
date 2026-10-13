@@ -15,7 +15,7 @@ on:
       target:
         description: "What to run on"
         type: choice
-        options: [distros, flatpak, snap, wayland, nix, wine, freebsd, alpine, linux-arm, emulated, limits, vault-elsewhere, all]
+        options: [distros, flatpak, snap, wayland, nix, wine, freebsd, alpine, linux-arm, emulated, limits, vault-elsewhere, desktops, all]
         default: distros
       suites:
         description: "Suites, space separated"
@@ -166,8 +166,20 @@ jobs:
       suite-env: |
         OBSIDIAN_EXTRA_ARGS=--no-sandbox
 
+  # Real desktop sessions: Xorg itself, the major X11 desktops (Xfce, MATE,
+  # Cinnamon, LXQt, KDE Plasma, GNOME, Budgie) and Wayland compositors (GNOME,
+  # KDE, Sway, labwc, Hyprland, Weston) — electron-template's reusable workflow.
+  desktops:
+    if: inputs.target == 'desktops' || inputs.target == 'all'
+    uses: Gelaende51/electron-template/.github/workflows/desktops.yml@v0.15.0
+    with:
+      flags-var: OBSIDIAN_EXTRA_ARGS
+      suites: ${{ inputs.suites }}
+      versions: ${{ inputs.versions }}
+      run: .dev/ci-suites.sh
+
   report:
-    needs: [distros, flatpak, snap, wayland, nix, wine, freebsd, alpine, linux-arm, emulated, limits, vault-elsewhere]
+    needs: [distros, flatpak, snap, wayland, nix, wine, freebsd, alpine, linux-arm, emulated, limits, vault-elsewhere, desktops]
     if: always() && inputs.why != ''
     uses: Gelaende51/development-template/.github/workflows/target-issue.yml@v1
     permissions:
