@@ -22,7 +22,7 @@ The obvious place is the manifest, and it is the wrong one for three separate re
   to every user. Tags and a listing icon change when you change your mind about them,
   are set once, and belong to nobody's download.
 
-So: a separate file, read by nothing but `scripts/check-listing.mjs`. Because only our
+So: a separate file, read by nothing but `obsidian-check-listing` (obsidian-toolkit). Because only our
 own tooling parses it, keys beginning with `_` can carry the explanation next to the
 value it explains — the annotation that `manifest.json` cannot have.
 
@@ -68,6 +68,6 @@ and say whether it agrees. `publish` runs the remote check and prints the values
 the form is filled in from the source tree rather than from memory.
 
 The tag vocabulary is not documented anywhere. It is compiled into the site's own
-JavaScript, and `scripts/obsidian-listing-tags.mjs` holds a copy read from there, with
+JavaScript, and obsidian-toolkit's `obsidian-listing-tags` holds a copy read from there, with
 a `--refresh` that reads it again and reports what moved. A committed copy that cannot
 be re-derived is a copy that rots; one that can is a cache.

@@ -19,7 +19,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { execFileSync, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { notify } from "./notify.mjs";
-import { TAGS } from "./obsidian-listing-tags.mjs";
+import { TAGS } from "obsidian-toolkit/listing-tags";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const manifest = JSON.parse(readFileSync(`${root}manifest.json`, "utf8"));
@@ -100,7 +100,8 @@ Provenance, if you have not checked it already:
 // tree. Exit 2 from the checker means "valid file, stale site" — which is the
 // normal state at this point, so it is reported rather than treated as failure.
 if (existsSync(listingPath)) {
-	const check = spawnSync(process.execPath, [`${root}scripts/check-listing.mjs`, "--remote"], {
+	const check = spawnSync(process.execPath, [`${root}node_modules/obsidian-toolkit/bin/check-listing.mjs`, "--remote"], {
+		cwd: root,
 		stdio: "inherit",
 	});
 	if (check.status === 1) process.exit(1);

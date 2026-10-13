@@ -1,7 +1,7 @@
 {
 	"_": "What the community site shows about this plugin that manifest.json has no field for. Nothing here is shipped to users and Obsidian never reads it — see docs/development.md#the-listing. This is the template's copy and deliberately lists every field, so `check:listing` reports each one as removable — `npm run init` trims it to the two lines a plugin actually fills in. Keys starting with _ are notes and are ignored; JSON has no comments and only these scripts read this file, so they live here rather than in a document nobody opens.",
 
-	"_tags": "Up to 3, in the order they should appear on the listing — the form lets you drag them, so the order is a choice. `node scripts/obsidian-listing-tags.mjs` prints the 76 the site accepts; anything else makes the form refuse to save.",
+	"_tags": "Up to 3, in the order they should appear on the listing — the form lets you drag them, so the order is a choice. `node obsidian-listing-tags` prints the 76 the site accepts; anything else makes the form refuse to save.",
 	"tags": [],
 
 	"_pricing": "free | paid | optional-payment. Defaults to free, which is also what a plugin with no payment of any kind is; delete this line unless it is something else.",
