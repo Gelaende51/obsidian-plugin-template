@@ -1,3 +1,5 @@
+<!-- {{SELECTOR}} -->
+
 # Changelog
 
 What changed in each release. New entries go under *Unreleased*; the Release

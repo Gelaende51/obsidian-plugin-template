@@ -26,7 +26,7 @@ permissions:
 
 jobs:
   suites:
-    uses: Gelaende51/obsidian-toolkit/.github/workflows/suites.yml@v0.11.1
+    uses: Gelaende51/obsidian-toolkit/.github/workflows/suites.yml@v0.12.0
     with:
       versions: '["earliest", "latest"]'
       runners: ${{ inputs.runners || '["ubuntu-latest"]' }}

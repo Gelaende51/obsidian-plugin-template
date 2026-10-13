@@ -17,7 +17,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { dirname, relative, resolve } from "node:path";
-import { LANGUAGES } from "./i18n-selector.mjs";
+import { LANGUAGES } from "obsidian-toolkit/i18n-selector";
 
 /**
  * Re-points relative links for a body that is moving to another directory.

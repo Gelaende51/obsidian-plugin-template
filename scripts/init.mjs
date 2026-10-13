@@ -67,7 +67,7 @@ const personal = readPersonal();
 const SUBSYSTEMS = {
 	i18n: {
 		label: "Localisation (t(), locale table, translated docs)",
-		files: ["src/lang", "scripts/check-translations.mjs", "scripts/i18n-selector.mjs", "scripts/i18n-stamp.mjs", "scripts/newlocale.mjs", "scripts/obsidian-labels.mjs", "docs/i18n"],
+		files: ["src/lang", "scripts/check-translations.mjs", "scripts/newlocale.mjs", "scripts/obsidian-labels.mjs", "docs/i18n"],
 		scripts: ["check:lang", "newlocale", "stamp", "labels"],
 	},
 	harness: {

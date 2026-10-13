@@ -1,4 +1,4 @@
-{{SELECTOR}}
+<!-- {{SELECTOR}} -->
 
 # Usage
 
