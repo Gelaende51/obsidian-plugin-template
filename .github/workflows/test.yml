@@ -1,14 +1,25 @@
 # The live-app suites (devkit.config.json's "suites", .dev/<suite>.mjs)
 # against a sandboxed Obsidian, on the oldest version the manifest allows and
-# the newest — obsidian-toolkit's reusable workflow.
+# the newest — obsidian-toolkit's reusable workflow. Linux on every push;
+# Windows and macOS when asked for (Actions → Test → Run workflow, or the
+# `runners` input from another workflow): their minutes count 2× and 10× on a
+# private repository's allowance.
 name: Test
 on:
   push:
     branches: ["**"]
   pull_request:
   workflow_dispatch:
+    inputs:
+      runners:
+        description: "JSON array of runners"
+        default: '["ubuntu-latest", "windows-latest", "macos-latest"]'
   # The Release workflow runs the same suites first.
   workflow_call:
+    inputs:
+      runners:
+        type: string
+        default: '["ubuntu-latest"]'
 
 permissions:
   contents: read
@@ -18,4 +29,4 @@ jobs:
     uses: Gelaende51/obsidian-toolkit/.github/workflows/suites.yml@v0.11.1
     with:
       versions: '["earliest", "latest"]'
-      runners: '["ubuntu-latest", "windows-latest", "macos-latest"]'
+      runners: ${{ inputs.runners || '["ubuntu-latest"]' }}

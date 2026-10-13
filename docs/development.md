@@ -157,7 +157,7 @@ that the released files are committed and that your `main` is GitHub's, then sta
 
 | Step | Where | What it does |
 | --- | --- | --- |
-| Tests | Test workflow | The live-app suites on the oldest and newest Obsidian, three desktops |
+| Tests | Test workflow | The live-app suites on the oldest and newest Obsidian (Linux; Windows and macOS on request) |
 | Preview scan | the directory's *Review branch* | Scans the commit about to be released; fails on a Warning the last release did not have — before anything is written |
 | Release commit | `obsidian-release` | `## Unreleased` and every translation's pending section become `## 1.1.0 — <date>`, with a compare link; `manifest.json`, `package.json`, `versions.json` take the version |
 | Tag and release | GitHub | Build, the tag/manifest check, a signed provenance attestation on each asset, the release |
