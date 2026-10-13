@@ -33,19 +33,21 @@ permissions:
 jobs:
   distros:
     if: inputs.target == 'distros' || inputs.target == 'all'
-    uses: Gelaende51/electron-template/.github/workflows/distros.yml@v0.14.0
+    uses: Gelaende51/electron-template/.github/workflows/distros.yml@v0.16.0
     with:
       images: '["debian:12", "ubuntu:22.04", "fedora:42", "archlinux:latest", "opensuse/leap:16.0"]'
       suites: ${{ inputs.suites }}
       versions: ${{ inputs.versions }}
       run: bash .dev/ci-suites.sh
-      toolkit-ref: v0.14.0
+      toolkit-ref: v0.16.0
+      # Xorg itself, as the distributions' users run X — not Xvfb.
+      display: xorg
       suite-env: |
         OBSIDIAN_EXTRA_ARGS=--no-sandbox
 
   flatpak:
     if: inputs.target == 'flatpak' || inputs.target == 'all'
-    uses: Gelaende51/electron-template/.github/workflows/flatpak.yml@v0.14.0
+    uses: Gelaende51/electron-template/.github/workflows/flatpak.yml@v0.16.0
     with:
       app-id: md.obsidian.Obsidian
       command-var: OBSIDIAN_COMMAND
@@ -56,7 +58,7 @@ jobs:
 
   snap:
     if: inputs.target == 'snap' || inputs.target == 'all'
-    uses: Gelaende51/electron-template/.github/workflows/snap.yml@v0.14.0
+    uses: Gelaende51/electron-template/.github/workflows/snap.yml@v0.16.0
     with:
       snap: obsidian
       command-var: OBSIDIAN_COMMAND
@@ -68,7 +70,7 @@ jobs:
 
   wayland:
     if: inputs.target == 'wayland' || inputs.target == 'all'
-    uses: Gelaende51/electron-template/.github/workflows/wayland.yml@v0.14.0
+    uses: Gelaende51/electron-template/.github/workflows/wayland.yml@v0.16.0
     with:
       flags-var: OBSIDIAN_EXTRA_ARGS
       suites: ${{ inputs.suites }}
@@ -77,7 +79,7 @@ jobs:
 
   nix:
     if: inputs.target == 'nix' || inputs.target == 'all'
-    uses: Gelaende51/electron-template/.github/workflows/nix.yml@v0.14.0
+    uses: Gelaende51/electron-template/.github/workflows/nix.yml@v0.16.0
     with:
       package: obsidian
       command-var: OBSIDIAN_COMMAND
@@ -89,7 +91,7 @@ jobs:
 
   wine:
     if: inputs.target == 'wine' || inputs.target == 'all'
-    uses: Gelaende51/electron-template/.github/workflows/wine.yml@v0.14.0
+    uses: Gelaende51/electron-template/.github/workflows/wine.yml@v0.16.0
     with:
       installer-repo: obsidianmd/obsidian-releases
       installer-pattern: 'Obsidian-[0-9.]*\.exe'
@@ -118,7 +120,7 @@ jobs:
 
   linux-arm:
     if: inputs.target == 'linux-arm' || inputs.target == 'all'
-    uses: Gelaende51/electron-template/.github/workflows/platform.yml@v0.14.0
+    uses: Gelaende51/electron-template/.github/workflows/platform.yml@v0.16.0
     with:
       runs-on: ubuntu-24.04-arm
       setup: sudo apt-get update -q && sudo apt-get install -y -q xvfb libfuse2t64 || sudo apt-get install -y -q xvfb libfuse2
@@ -134,7 +136,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-11-arm, macos-15]
-    uses: Gelaende51/electron-template/.github/workflows/platform.yml@v0.14.0
+    uses: Gelaende51/electron-template/.github/workflows/platform.yml@v0.16.0
     with:
       runs-on: ${{ matrix.os }}
       node-arch: x64
@@ -147,17 +149,17 @@ jobs:
 
   limits:
     if: inputs.target == 'limits' || inputs.target == 'all'
-    uses: Gelaende51/electron-template/.github/workflows/limits.yml@v0.14.0
+    uses: Gelaende51/electron-template/.github/workflows/limits.yml@v0.16.0
     with:
       flags-var: OBSIDIAN_EXTRA_ARGS
       suites: ${{ inputs.suites }}
       versions: ${{ inputs.versions }}
       run: bash .dev/ci-suites.sh
-      toolkit-ref: v0.14.0
+      toolkit-ref: v0.16.0
 
   vault-elsewhere:
     if: inputs.target == 'vault-elsewhere' || inputs.target == 'all'
-    uses: Gelaende51/electron-template/.github/workflows/data-elsewhere.yml@v0.14.0
+    uses: Gelaende51/electron-template/.github/workflows/data-elsewhere.yml@v0.16.0
     with:
       parent-var: VAULT_PARENT
       suites: ${{ inputs.suites }}
@@ -171,7 +173,7 @@ jobs:
   # KDE, Sway, labwc, Weston) — electron-template's reusable workflow.
   desktops:
     if: inputs.target == 'desktops' || inputs.target == 'all'
-    uses: Gelaende51/electron-template/.github/workflows/desktops.yml@v0.15.1
+    uses: Gelaende51/electron-template/.github/workflows/desktops.yml@v0.16.0
     with:
       flags-var: OBSIDIAN_EXTRA_ARGS
       suites: ${{ inputs.suites }}
