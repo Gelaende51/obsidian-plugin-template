@@ -34,7 +34,7 @@ leaves the template as it was.
 | **Live-app tests** | Suites on development-template's harness against a sandboxed Obsidian (`.dev/test-smoke.mjs` to copy; `.dev/ci-run.sh <suite>`), on the oldest and newest Obsidian and Linux, Windows and macOS on every push; `test-systems.yml` adds distributions, Flatpak, Snap, Wayland, Nix, Wine, FreeBSD, Alpine, Arm, emulation, a small machine and the vault on network shares. A self-test proves the harness before you trust it |
 | **Localisation** | `t()`, a coverage gate, a locale scaffolder, and a reader for Obsidian's *own* UI strings |
 | **Docs integrity** | Link/anchor checking with GitHub's real slug rules, and structural parity between translations |
-| **Release** | Three tiers by reversibility: tag locally, preview-scan the tag, then publish. Signed provenance throughout |
+| **Release** | `npm run release -- 1.1.0` and the Release workflow does the rest: tests, the directory's preview scan before anything is written, changelogs and version files, tag, attested release, then the directory's release scan, listing and recorded review. Publishing the listing stays your click |
 | **Screenshots** | Live-app capture that refuses to shoot with test residue on screen, and never overwrites a good image with a rejected one |
 | **Safety** | A commit hook that refuses an open debug port, a staged credential file, or a secret in the diff |
 | **Dependencies** | Dependabot (bundled dependencies with majors, build tools, actions in groups); a dependency update that changes `main.js` is built as a `-deps` pre-release for BRAT once CI passes |

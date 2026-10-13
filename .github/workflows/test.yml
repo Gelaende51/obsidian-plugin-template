@@ -7,13 +7,15 @@ on:
     branches: ["**"]
   pull_request:
   workflow_dispatch:
+  # The Release workflow runs the same suites first.
+  workflow_call:
 
 permissions:
   contents: read
 
 jobs:
   suites:
-    uses: Gelaende51/obsidian-toolkit/.github/workflows/suites.yml@v0.10.2
+    uses: Gelaende51/obsidian-toolkit/.github/workflows/suites.yml@v0.11.0
     with:
       versions: '["earliest", "latest"]'
       runners: '["ubuntu-latest", "windows-latest", "macos-latest"]'

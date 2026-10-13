@@ -16,8 +16,7 @@
 		"stamp": "node scripts/i18n-stamp.mjs",
 		"labels": "node scripts/obsidian-labels.mjs",
 		"preflight": "bash scripts/preflight.sh",
-		"release": "node scripts/release.mjs",
-		"release:review": "node scripts/release-review.mjs",
+		"release": "obsidian-release-dispatch",
 		"publish": "node scripts/publish.mjs",
 		"init": "node scripts/init.mjs"
 	},
@@ -29,7 +28,7 @@
 		"eslint": "^9.39.0",
 		"eslint-plugin-obsidianmd": "^0.4.1",
 		"obsidian": "latest",
-		"obsidian-toolkit": "https://codeload.github.com/Gelaende51/obsidian-toolkit/tar.gz/refs/tags/v0.10.2",
+		"obsidian-toolkit": "https://codeload.github.com/Gelaende51/obsidian-toolkit/tar.gz/refs/tags/v0.11.0",
 		"tslib": "^2.6.0",
 		"typescript": "^5.4.0",
 		"typescript-eslint": "^8.67.0"

@@ -143,62 +143,58 @@ directly rather than reimplementing it, and tells you which call is buying the f
 
 ## Cutting a release
 
-Three commands, in order, each less reversible than the last:
-
 ```bash
-npm run release -- 1.1.0     # gates, bumps, commits, tags. Pushes nothing.
-git push && git push origin 1.1.0
-npm run release:review       # preview scan against the tag — read-only
-npm run publish              # promote the release, then make the listing public
+npm run release -- 1.1.0     # checks here, then the Release workflow does the rest
 ```
 
-| Tier | What it touches | Undo |
+Before it, on your machine: the entries under `## Unreleased` in `CHANGELOG.md`, and
+in every translated changelog (`docs/i18n/CHANGELOG.<lang>.md`) a pending section with
+them translated — the release stops when one is missing. Commit and push.
+
+`npm run release` (obsidian-toolkit's `obsidian-release-dispatch`) checks exactly that,
+that the released files are committed and that your `main` is GitHub's, then starts
+`.github/workflows/release.yml` and follows it:
+
+| Step | Where | What it does |
 | --- | --- | --- |
-| `release` | Your working copy and a local tag | `git tag -d 1.1.0` |
-| `release:review` | Nothing — it reads a scan of your tag | Nothing to undo |
-| `publish` | The public listing | Not in the way the other two are |
+| Tests | Test workflow | The live-app suites on the oldest and newest Obsidian, three desktops |
+| Preview scan | the directory's *Review branch* | Scans the commit about to be released; fails on a Warning the last release did not have — before anything is written |
+| Release commit | `obsidian-release` | `## Unreleased` and every translation's pending section become `## 1.1.0 — <date>`, with a compare link; `manifest.json`, `package.json`, `versions.json` take the version |
+| Tag and release | GitHub | Build, the tag/manifest check, a signed provenance attestation on each asset, the release |
+| The directory | community.obsidian.md | Queues the release scan, waits for the public listing, reads the release's review, compares it with the previous one and records it in `.github/directory-reviews/` |
 
-`release` stops at the tag deliberately: everything up to there is deterministic and
-works anywhere. It also raises a desktop notification, because CI and the community
-scan both finish minutes after the command returns, and a release that quietly needs a
-browser step is a release that sits half-finished.
-
-The order is the point: the **preview scan happens before anything is public**. The
-admin area's *Review branch* runs the submission review against any tag without
-publishing, which turns it from a verdict into a pre-flight check. *Check for new
-releases* is a separate control that promotes it — and it does not reliably happen by
-itself. *Publish* is a third, and it is the one that cannot be quietly taken back.
-
-### The browser steps need a signed-in session
-
-`community.obsidian.md` authenticates with an email and password. There is no token, no
-API key and no OAuth app, so **none of these steps can run in CI** and none of them can
-be driven by a script holding a credential.
-
-What works is driving a browser you are already signed into. With [Claude in
-Chrome](https://claude.com/chrome) installed and connected (`/chrome` in a Claude Code
-session), an agent can navigate the admin area, run the preview scan, read the result
-back and press the controls — with one exception, which is deliberate:
-
-> **Sign in yourself.** An agent should not type a password into a form, even one you
-> handed it: a password entered outside a password manager is a credential used in a
-> context that cannot be fully verified. Sign in, then hand the session over. Everything
-> after that is automatable.
-
-Without the extension, `release:review` and `publish` print the steps and the URLs and
-you click them. That is the intended fallback — the scripts degrade to instructions
-rather than to a silent no-op, so a release behaves the same everywhere and the part
-that differs is visible.
+A tag pushed by hand (`git tag 1.1.0 && git push origin 1.1.0`) is released as it is,
+without the changelog step. The first release may be the manifest's own `0.1.0`.
 
 `versions.json` is append-only. It is how an app too old for the current release finds
 the newest one it can still run; deleting a line strands those users.
+
+### The directory's session
+
+`community.obsidian.md` has no API and no token: it authenticates by session cookie.
+The workflow's directory steps sign in with one stored as the repository secret
+`OBSIDIAN_COMMUNITY_COOKIE`, and `npx obsidian-directory-session` keeps it alive — a
+Chrome profile of its own, a silent renewal while that profile is signed in to
+obsidian.md, and a window on the login page when you need to sign in again
+(`--install` runs it daily). **Sign in yourself**: an agent should not type a password
+into a form, even one you handed it. A wrapper of your own may hand the account over
+(see the script's header), never through the environment of other programs.
+
+Without the secret, the release still happens; `npm run release` then opens the
+directory's check-release page in your signed-in browser (that visit queues the scan)
+and waits until the listing shows the version.
+
+After the first release, once: `npm run publish` says what is left on the site — reading
+the review, the **Publish** click that takes the listing out of draft (the one step you
+cannot quietly take back, and the owner's, never a script's), and the listing fields.
 
 ### The listing
 
 The community site keeps a handful of fields the manifest has nowhere to put — tags, a
 long description, a pricing model, a listing icon, screenshots. `listing.json` holds
-them in the source tree, `npm run check:listing` validates them, and `publish` prints
-what to type and then reads the public listing back. Why they cannot live in
+them in the source tree, `npm run check:listing` validates them (`-- --remote` against
+the live listing, which the Release workflow also does), and `publish` prints what to
+type. Why they cannot live in
 `manifest.json`, and what every field means, is in [the listing](listing.md).
 
 ## Localisation

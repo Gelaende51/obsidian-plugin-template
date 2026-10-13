@@ -1,22 +1,19 @@
 ---
-description: Cut a release, with the checks in the right order
+description: Cut a release through the Release workflow
 ---
 
 Release version $ARGUMENTS.
 
-1. `npm run release -- $ARGUMENTS` — gates, bumps manifest and versions.json, commits
-   and tags. It stops there deliberately and pushes nothing.
-2. Report what it said, especially any minAppVersion warning. Do not push past one
-   without saying what it was.
-3. On my go-ahead: `git push && git push origin $ARGUMENTS`.
-4. Watch the release workflow and confirm the provenance attestation verified.
-5. `npm run release:review` — the preview scan against the tag. Read the result and
-   tell me what it says before going further.
-6. Only once that is clean: `npm run publish`, which promotes the release and makes the
-   listing public.
-
-The community-site steps need Claude in Chrome connected and me already signed in —
-the site has no token path. **Do not type the password**, even if I have given it to
-you; ask me to sign in and take over from there.
-
-`publish` is the one step that cannot be quietly undone. Confirm with me before it.
+1. Check `CHANGELOG.md` has the entries under `## Unreleased`, and that every
+   `docs/i18n/CHANGELOG.<lang>.md` has them translated as a pending section; translate
+   what is missing first, and commit and push.
+2. `npm run release -- $ARGUMENTS` — it checks readiness, starts the Release workflow and
+   follows it: tests, preview scan, release commit and tag, attested release, and the
+   community directory's scan, listing and recorded review.
+3. Report what the run's summary says: the directory's review against the previous
+   release (new findings, especially Warnings), and the listing's Health and Review.
+4. If the `OBSIDIAN_COMMUNITY_COOKIE` secret is not set, `npm run release` opens the
+   check-release page in my browser instead: I must be signed in. **Do not type the
+   password**, even if I have given it to you; ask me to sign in.
+5. After the first release only: `npm run publish` lists what is left on the site. The
+   Publish click is mine — confirm with me before anything there.
