@@ -1,0 +1,179 @@
+# The suites on systems and setups beyond the three desktop runners, one
+# named target at a time (or all): distribution containers, Flatpak (full
+# and restricted), Snap, Wayland, Nix, Wine, FreeBSD, Alpine, Linux on Arm,
+# x64 emulation, a small and slow machine, odd displays, the vault outside
+# home and on network shares. Started by hand, or by automation with `why`:
+# then a failure opens (or comments on) one issue per target, closed when it
+# passes again. Every job is a reusable workflow from electron-template or
+# obsidian-toolkit.
+#
+#   gh workflow run test-systems.yml -f target=flatpak -f suites="test-smoke"
+name: Test other systems
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "What to run on"
+        type: choice
+        options: [distros, flatpak, snap, wayland, nix, wine, freebsd, alpine, linux-arm, emulated, limits, vault-elsewhere, all]
+        default: distros
+      suites:
+        description: "Suites, space separated"
+        default: "test-smoke"
+      versions:
+        description: "Obsidian versions"
+        default: "latest"
+      why:
+        description: "Set by automation: a failure is reported as an issue"
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  distros:
+    if: inputs.target == 'distros' || inputs.target == 'all'
+    uses: Gelaende51/electron-template/.github/workflows/distros.yml@v0.14.0
+    with:
+      images: '["debian:12", "ubuntu:22.04", "fedora:42", "archlinux:latest", "opensuse/leap:16.0"]'
+      suites: ${{ inputs.suites }}
+      versions: ${{ inputs.versions }}
+      run: bash .dev/ci-suites.sh
+      toolkit-ref: v0.14.0
+      suite-env: |
+        OBSIDIAN_EXTRA_ARGS=--no-sandbox
+
+  flatpak:
+    if: inputs.target == 'flatpak' || inputs.target == 'all'
+    uses: Gelaende51/electron-template/.github/workflows/flatpak.yml@v0.14.0
+    with:
+      app-id: md.obsidian.Obsidian
+      command-var: OBSIDIAN_COMMAND
+      data-dir: .cache/obsidian-ci
+      suites: ${{ inputs.suites }}
+      versions: ${{ inputs.versions }}
+      run: .dev/ci-suites.sh
+
+  snap:
+    if: inputs.target == 'snap' || inputs.target == 'all'
+    uses: Gelaende51/electron-template/.github/workflows/snap.yml@v0.14.0
+    with:
+      snap: obsidian
+      command-var: OBSIDIAN_COMMAND
+      suites: ${{ inputs.suites }}
+      versions: ${{ inputs.versions }}
+      run: .dev/ci-suites.sh
+      suite-env: |
+        OBSIDIAN_EXTRA_ARGS=--no-sandbox
+
+  wayland:
+    if: inputs.target == 'wayland' || inputs.target == 'all'
+    uses: Gelaende51/electron-template/.github/workflows/wayland.yml@v0.14.0
+    with:
+      flags-var: OBSIDIAN_EXTRA_ARGS
+      suites: ${{ inputs.suites }}
+      versions: ${{ inputs.versions }}
+      run: .dev/ci-suites.sh
+
+  nix:
+    if: inputs.target == 'nix' || inputs.target == 'all'
+    uses: Gelaende51/electron-template/.github/workflows/nix.yml@v0.14.0
+    with:
+      package: obsidian
+      command-var: OBSIDIAN_COMMAND
+      suites: ${{ inputs.suites }}
+      versions: ${{ inputs.versions }}
+      run: .dev/ci-suites.sh
+      suite-env: |
+        OBSIDIAN_EXTRA_ARGS=--no-sandbox
+
+  wine:
+    if: inputs.target == 'wine' || inputs.target == 'all'
+    uses: Gelaende51/electron-template/.github/workflows/wine.yml@v0.14.0
+    with:
+      installer-repo: obsidianmd/obsidian-releases
+      installer-pattern: 'Obsidian-[0-9.]*\.exe'
+      exe: Obsidian.exe
+      command-var: OBSIDIAN_COMMAND
+      flags-var: OBSIDIAN_EXTRA_ARGS
+      suites: ${{ inputs.suites }}
+      versions: ${{ inputs.versions }}
+      run: .dev/ci-suites.sh
+      suite-env: |
+        OBSIDIAN_PATHS=wine
+
+  freebsd:
+    if: inputs.target == 'freebsd' || inputs.target == 'all'
+    uses: Gelaende51/obsidian-toolkit/.github/workflows/freebsd.yml@v0.8.0
+    with:
+      suites: ${{ inputs.suites }}
+      versions: ${{ inputs.versions }}
+
+  alpine:
+    if: inputs.target == 'alpine' || inputs.target == 'all'
+    uses: Gelaende51/obsidian-toolkit/.github/workflows/alpine.yml@v0.8.0
+    with:
+      suites: ${{ inputs.suites }}
+      versions: ${{ inputs.versions }}
+
+  linux-arm:
+    if: inputs.target == 'linux-arm' || inputs.target == 'all'
+    uses: Gelaende51/electron-template/.github/workflows/platform.yml@v0.14.0
+    with:
+      runs-on: ubuntu-24.04-arm
+      setup: sudo apt-get update -q && sudo apt-get install -y -q xvfb libfuse2t64 || sudo apt-get install -y -q xvfb libfuse2
+      suites: ${{ inputs.suites }}
+      versions: ${{ inputs.versions }}
+      run: .dev/ci-suites.sh
+      suite-env: |
+        OBSIDIAN_EXTRA_ARGS=--no-sandbox
+
+  emulated:
+    if: inputs.target == 'emulated' || inputs.target == 'all'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-11-arm, macos-15]
+    uses: Gelaende51/electron-template/.github/workflows/platform.yml@v0.14.0
+    with:
+      runs-on: ${{ matrix.os }}
+      node-arch: x64
+      slow: 3
+      # Rosetta is flaky under the suites' timing; a probe, not a gate.
+      probe: ${{ matrix.os == 'macos-15' }}
+      suites: ${{ inputs.suites }}
+      versions: ${{ inputs.versions }}
+      run: .dev/ci-suites.sh
+
+  limits:
+    if: inputs.target == 'limits' || inputs.target == 'all'
+    uses: Gelaende51/electron-template/.github/workflows/limits.yml@v0.14.0
+    with:
+      flags-var: OBSIDIAN_EXTRA_ARGS
+      suites: ${{ inputs.suites }}
+      versions: ${{ inputs.versions }}
+      run: bash .dev/ci-suites.sh
+      toolkit-ref: v0.14.0
+
+  vault-elsewhere:
+    if: inputs.target == 'vault-elsewhere' || inputs.target == 'all'
+    uses: Gelaende51/electron-template/.github/workflows/data-elsewhere.yml@v0.14.0
+    with:
+      parent-var: VAULT_PARENT
+      suites: ${{ inputs.suites }}
+      versions: ${{ inputs.versions }}
+      run: .dev/ci-suites.sh
+      suite-env: |
+        OBSIDIAN_EXTRA_ARGS=--no-sandbox
+
+  report:
+    needs: [distros, flatpak, snap, wayland, nix, wine, freebsd, alpine, linux-arm, emulated, limits, vault-elsewhere]
+    if: always() && inputs.why != ''
+    uses: Gelaende51/development-template/.github/workflows/target-issue.yml@v1
+    permissions:
+      issues: write
+    with:
+      target: ${{ inputs.target }}
+      why: ${{ inputs.why }}
+      failed: ${{ contains(needs.*.result, 'failure') }}
+      cancelled: ${{ contains(needs.*.result, 'cancelled') }}

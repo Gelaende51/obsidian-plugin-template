@@ -72,7 +72,7 @@ const SUBSYSTEMS = {
 	},
 	harness: {
 		label: "Live-app test harness (CDP)",
-		files: [".dev/cdp.mjs", ".dev/cdpSession.mjs", ".dev/cdpSession.mjs", ".dev/restart-obsidian.sh", ".dev/test-harness.mjs"],
+		files: [".dev/cdp.mjs", ".dev/cdpSession.mjs", ".dev/restart-obsidian.sh", ".dev/test-harness.mjs", ".dev/test-smoke.mjs", ".dev/test-vault", ".dev/ci-run.sh", ".dev/ci-suites.sh", ".github/workflows/test.yml", ".github/workflows/test-systems.yml"],
 		scripts: [],
 	},
 	docs: {

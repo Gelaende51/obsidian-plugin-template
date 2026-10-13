@@ -31,7 +31,7 @@ leaves the template as it was.
 | **Build** | esbuild + TypeScript, no runtime dependencies, Node/Electron/CodeMirror externalised |
 | **Review parity** | `npm run lint` runs `eslint-plugin-obsidianmd` — the submission review's own rule set — and `npm run build` depends on it |
 | **`check:minapp`** | Tells you what your API usage actually requires, by asking the real rule rather than guessing |
-| **Live-app tests** | A DevTools-protocol harness that drives a real Obsidian, plus a self-test that proves the harness before you trust it |
+| **Live-app tests** | Suites on development-template's harness against a sandboxed Obsidian (`.dev/test-smoke.mjs` to copy; `.dev/ci-run.sh <suite>`), on the oldest and newest Obsidian and Linux, Windows and macOS on every push; `test-systems.yml` adds distributions, Flatpak, Snap, Wayland, Nix, Wine, FreeBSD, Alpine, Arm, emulation, a small machine and the vault on network shares. A self-test proves the harness before you trust it |
 | **Localisation** | `t()`, a coverage gate, a locale scaffolder, and a reader for Obsidian's *own* UI strings |
 | **Docs integrity** | Link/anchor checking with GitHub's real slug rules, and structural parity between translations |
 | **Release** | Three tiers by reversibility: tag locally, preview-scan the tag, then publish. Signed provenance throughout |

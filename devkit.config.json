@@ -3,7 +3,17 @@
 	"id": "my-plugin",
 	"name": "My Plugin",
 	"repository": "TODO-OWNER/obsidian-my-plugin",
-	"locales": ["en"],
-	"environments": {},
-	"obsidian": {}
+	"locales": [
+		"en"
+	],
+	"suites": [
+		"test-smoke"
+	],
+	"obsidian": {
+		"neighbours": [],
+		"suitePlugins": {},
+		"keepEnabled": [],
+		"testVault": ".dev/test-vault"
+	},
+	"environments": {}
 }

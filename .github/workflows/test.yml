@@ -1,0 +1,19 @@
+# The live-app suites (devkit.config.json's "suites", .dev/<suite>.mjs)
+# against a sandboxed Obsidian, on the oldest version the manifest allows and
+# the newest — obsidian-toolkit's reusable workflow.
+name: Test
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  suites:
+    uses: Gelaende51/obsidian-toolkit/.github/workflows/suites.yml@v0.8.0
+    with:
+      versions: '["earliest", "latest"]'
+      runners: '["ubuntu-latest", "windows-latest", "macos-latest"]'
