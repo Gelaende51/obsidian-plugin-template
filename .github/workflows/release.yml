@@ -35,7 +35,7 @@ jobs:
 
   release:
     needs: test
-    uses: Gelaende51/obsidian-toolkit/.github/workflows/release.yml@v0.13.0
+    uses: Gelaende51/obsidian-toolkit/.github/workflows/release.yml@v0.13.1
     # The directory's session (OBSIDIAN_COMMUNITY_COOKIE), when it is set.
     secrets: inherit
     permissions:
